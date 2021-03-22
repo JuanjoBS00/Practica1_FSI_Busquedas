@@ -97,13 +97,16 @@ def graph_search(problem, fringe):
     """Search through the successors of a problem to find a goal.
     The argument fringe should be an empty queue.
     If two paths reach a state, only use the best one. [Fig. 3.18]"""
+    cont = 0
     closed = {}
     fringe.append(Node(problem.initial))
     while fringe:
         node = fringe.pop()
+        cont+=1 # Se cuentan los visitados
         if problem.goal_test(node.state):
-            return node
+            return node, cont
         if node.state not in closed:
+            #Se cuentan los expandidos. Se ponen en la lista cerrada
             closed[node.state] = True
             fringe.extend(node.expand(problem))
     return None
@@ -120,6 +123,9 @@ def depth_first_graph_search(problem):
 
 def branch_and_bound_search(problem):
     return graph_search(problem, BnB_FIFOQueue())
+
+def branch_and_bound_subestimation_search(problem):
+    return graph_search(problem, BnB_Subestimation_FIFOQueue(problem))
 
 
 # _____________________________________________________________________________

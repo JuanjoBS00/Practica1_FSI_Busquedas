@@ -1,6 +1,7 @@
 
 #______________________________________________________________________________
 # Simple Data Structures: infinity, Dict, Struct
+import math
 
 infinity = 1.0e400
 
@@ -576,10 +577,57 @@ class BnB_FIFOQueue(Queue):
             return array
 
     def extend(self, items):
-        self.A.extend(items)
+        self.A.extend(items) #Debe usar la heurística además del path cost
         self.A = self.BnB_quickSort(self.A)
 
     def pop(self):
+        # return self.A.pop()
+        e = self.A[self.start]
+        self.start += 1
+        if self.start > 5 and self.start > len(self.A) / 2:
+            self.A = self.A[self.start:]
+            self.start = 0
+        return e
+
+
+class BnB_Subestimation_FIFOQueue(Queue):
+    """A First-In-First-Out Queue which implements inner quickSort sorting procedure, used in Branch and Bound search."""
+
+    def __init__(self, problem):
+        self.A = []
+        self.start = 0
+        self.problem = problem
+
+    def append(self, item):
+        self.A.append(item)
+
+    def __len__(self):
+        return len(self.A) - self.start
+
+    def BnB_quickSort(self, array):
+        less = []
+        equal = []
+        greater = []
+
+        if len(array) > 1:
+            pivot = array[0]
+            for x in array:
+                if x.path_cost + self.problem.h(x) < pivot.path_cost + self.problem.h(pivot):
+                    less.append(x)
+                elif x.path_cost + self.problem.h(x) == pivot.path_cost + self.problem.h(pivot):
+                    equal.append(x)
+                elif x.path_cost + self.problem.h(x) > pivot.path_cost + self.problem.h(pivot):
+                    greater.append(x)
+            return self.BnB_quickSort(less) + equal + self.BnB_quickSort(greater)
+        else:
+            return array
+
+    def extend(self, items):
+        self.A.extend(items) #Debe usar la heurística además del path cost
+        self.A = self.BnB_quickSort(self.A)
+
+    def pop(self):
+        # return self.A.pop()
         e = self.A[self.start]
         self.start += 1
         if self.start > 5 and self.start > len(self.A) / 2:
